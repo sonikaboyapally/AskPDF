@@ -1,14 +1,15 @@
 from pypdf import PdfReader
 from anthropic import Anthropic
+import os
 
-my_api_key = "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"
-#
-# client = Anthropic()  # have to load api_key from env file
-# MODEL_NAME = "claude-3-opus-20240229"  # can change model to haiku/sonnet
+api_key = os.getenv('API_KEY')
+if api_key is None:
+    raise ValueError("API_KEY environment variable is not set.")
 
-client = Anthropic(api_key = my_api_key)  # have to load api_key from env file
-# MODEL_NAME = "claude-3-opus-20240229"  # can change model to haiku/sonnet
+
+client = Anthropic(api_key=api_key)
 MODEL_NAME = "claude-3-haiku-20240307"
+
 
 def check_number_of_pages(pdf_reader):
     # checks number of pages
@@ -83,9 +84,3 @@ def main(given_path, user_prompt):
     given_prompt = build_general_prompt(given_text, user_prompt)
     completion = get_completion(client, given_prompt)
     return completion
-
-
-
-
-
-
