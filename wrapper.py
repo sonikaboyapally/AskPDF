@@ -2,7 +2,11 @@ from pypdf import PdfReader
 from anthropic import Anthropic
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()  # Loads variables from .env file into environment
 api_key = os.getenv('API_KEY')
+
 if api_key is None:
     raise ValueError("API_KEY environment variable is not set.")
 
