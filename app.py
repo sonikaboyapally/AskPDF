@@ -1,4 +1,5 @@
-from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import FastAPI, File, Form, Depends, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from typing import Optional
 import io
@@ -7,6 +8,18 @@ from pypdf import PdfReader
 from wrapper import main
 
 app = FastAPI()
+security = HTTPBasic()
+
+
+def authenticate(credentials: HTTPBasicCredentials = Depends(security)):
+    correct_username = 'askPDF'
+    correct_password = 'this_is_fun'
+    if credentials.username != correct_username or credentials.password != correct_password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
 
 
 # Request schema
@@ -38,7 +51,8 @@ def get_pdf_bytes(file_path: str) -> bytes:
 @app.post("/api", response_model=ModelResponse)
 async def process_pdf(
         file: bytes = File(...),  # PDF file bytes
-        user_prompt: str = Form(...)  # Additional string
+        user_prompt: str = Form(...),  # Additional string
+        credentials: HTTPBasicCredentials = Depends(authenticate)
 ):
     try:
         # Read the PDF file bytes
@@ -54,4 +68,3 @@ async def process_pdf(
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
